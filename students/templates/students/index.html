@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>University Enrollment API Dashboard</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; background-color: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { color: #2c3e50; }
+        .link-list { list-style: none; padding: 0; }
+        .link-list li { margin-bottom: 10px; }
+        .link-list a { color: #3498db; text-decoration: none; font-weight: bold; }
+        code { background: #eee; padding: 2px 5px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🎓 University Enrollment API</h1>
+    
+    <div class="card">
+        <h3>System Information</h3>
+        <ul>
+            <li><strong>Python Version:</strong> {{ python_version }}</li>
+            <li><strong>Django Version:</strong> {{ django_version }}</li>
+            <li><strong>Packages:</strong> {{ packages|join:", " }}</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h3>🔐 Admin Access</h3>
+        <p>Username: <code>admin</code> / Password: <code>your_password</code></p>
+    </div>
+
+    <div class="card">
+        <h3>🚀 API Endpoints (Hyperlinks)</h3>
+        <ul class="link-list">
+            <li><a href="/api/docs/">📑 Interactive Documentation (Swagger)</a></li>
+            <li><a href="/api/students/">👥 Student Management</a></li>
+            <li><a href="/api/majors/">📚 Available Majors</a></li>
+            <li><a href="/api/top-performers/">🌟 Top Performing Students</a></li>
+            <li><a href="/api/department-stats/">📊 Department Statistics (Complex Query)</a></li>
+            <li><a href="/api/high-salary-students/">💰 High-Salary Major Analysis</a></li>
+            <li><a href="/api/departments/">🏢 Department Management (CRUD)</a></li>
+            <li><a href="/api/majors/">📚 Major Management (CRUD)</a></li>
+        </ul>
+    </div>
+</body>
+</html>
