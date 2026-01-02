@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from django.db.models import Avg, Count
 from .models import Department, Major, Student
 from .serializers import DepartmentSerializer, MajorSerializer, StudentSerializer, DepartmentStatsSerializer
+from drf_spectacular.utils import extend_schema
 
 # 1. Standard ViewSet for Students (Covers GET, POST, PUT, DELETE)
 class StudentViewSet(viewsets.ModelViewSet):
@@ -35,6 +36,7 @@ class TopPerformersView(generics.ListAPIView):
         return Student.objects.filter(project_score__gt=90)
     
 # 4. Aggregated Stats per Department
+@extend_schema(responses={200: DepartmentStatsSerializer(many=True)})
 class DepartmentStatsView(APIView):
     """
     Returns statistics for each department by calculating averages 
