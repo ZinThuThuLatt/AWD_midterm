@@ -8,8 +8,10 @@ router.register(r'majors', MajorViewSet)          # New CRUD route
 router.register(r'departments', DepartmentViewSet) # New CRUD route
 
 urlpatterns = [
+    # include routes for students, majors & departments
     path('', include(router.urls)),
-    path('majors/', MajorViewSet.as_view(), name='major-list'),
+    
+    #path('majors/', MajorViewSet.as_view(), name='major-list'),
     path('top-performers/', TopPerformersView.as_view(), name='top-performers'),
     path('department-stats/', DepartmentStatsView.as_view(), name='dept-stats'),
     path('high-salary-students/', HighSalaryMajorStudentsView.as_view(), name='high-salary'),
