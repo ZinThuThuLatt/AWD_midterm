@@ -7,35 +7,35 @@ from .models import Department, Major, Student
 from .serializers import DepartmentSerializer, MajorSerializer, StudentSerializer, DepartmentStatsSerializer
 from drf_spectacular.utils import extend_schema
 
-# 1. Standard ViewSet for Students (Covers GET, POST, PUT, DELETE)
+# standard ViewSet for Students (GET, POST, PUT, DELETE)
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
-# 2. List all Majors
+# list all Majors
 #class MajorListView(generics.ListAPIView):
 #    queryset = Major.objects.all()
 #    serializer_class = MajorSerializer
 
-# New CRUD for Departments (Provides 5 endpoints: List, Create, Get, Update, Delete)
+# CRUD for Departments (List, Create, Get, Update, Delete)
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
 
-# Upgraded CRUD for Majors (Provides 5 endpoints: List, Create, Get, Update, Delete)
+# CRUD for Majors (List, Create, Get, Update, Delete)
 class MajorViewSet(viewsets.ModelViewSet):
     queryset = Major.objects.all()
     serializer_class = MajorSerializer
 
-# 3. "Interesting" Query: Top Performers
-# Returns students with project scores > 90
+# top performers
+# returns students with project scores > 90
 class TopPerformersView(generics.ListAPIView):
     serializer_class = StudentSerializer
     
     def get_queryset(self):
         return Student.objects.filter(project_score__gt=90)
     
-# 4. Aggregated Stats per Department
+# stats per Department
 @extend_schema(responses={200: DepartmentStatsSerializer(many=True)})
 class DepartmentStatsView(APIView):
     """
@@ -53,7 +53,7 @@ class DepartmentStatsView(APIView):
             'total_students', 'average_major_salary'
         )
         
-        # Format the data for the serializer
+        # format data for serializer
         formatted_stats = [
             {
                 'department_name': s['name'],
@@ -67,7 +67,7 @@ class DepartmentStatsView(APIView):
         serializer = DepartmentStatsSerializer(formatted_stats, many=True)
         return Response(serializer.data)
 
-# 5. Relational Filter: High-Salary Students
+# relational filter: High-Salary Students
 class HighSalaryMajorStudentsView(generics.ListAPIView):
     """
     Returns students enrolled in majors where the median 

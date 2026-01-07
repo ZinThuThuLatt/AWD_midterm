@@ -7,7 +7,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class MajorSerializer(serializers.ModelSerializer):
-    # This shows the department name instead of just an ID
+    # shows the department name instead of just an ID
     department_name = serializers.ReadOnlyField(source='department.name')
     
     class Meta:

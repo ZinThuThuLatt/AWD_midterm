@@ -4,8 +4,8 @@ from .views import StudentViewSet, MajorViewSet, DepartmentViewSet, TopPerformer
 
 router = DefaultRouter()
 router.register(r'students', StudentViewSet)
-router.register(r'majors', MajorViewSet)          # New CRUD route
-router.register(r'departments', DepartmentViewSet) # New CRUD route
+router.register(r'majors', MajorViewSet)          
+router.register(r'departments', DepartmentViewSet)
 
 urlpatterns = [
     # include routes for students, majors & departments

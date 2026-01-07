@@ -27,7 +27,7 @@ def api_root_info(request):
         "python_version": sys.version,
         "django_version": django.get_version(),
         "packages": ["djangorestframework", "django-filter"],
-        "admin_access": "User: your_username / Pass: your_password", # Replace with yours
+        "admin_access": "User: AWD / Pass: AWD",
         "documentation": "http://127.0.0.1:8000/api/docs/",
         "endpoints": {
             "students": "/api/students/",

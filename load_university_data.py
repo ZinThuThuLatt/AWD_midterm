@@ -1,33 +1,36 @@
 import os
 import csv
 import django
+import random
 
-# 1. Setup Django environment
+# Django env setup
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from students.models import Department, Major, Student
 
 def run():
-    # Clear existing data so you can run this multiple times without errors
+    # Clear existing data to run multiple times without errors
     print("Cleaning database...")
     Student.objects.all().delete()
     Major.objects.all().delete()
     Department.objects.all().delete()
 
-    # 2. Define our 4 core Departments
+    # 4 core Departments
     dept_names = ['Mathematics', 'Computer Science', 'Business', 'Engineering']
     dept_map = {}
     for name in dept_names:
+        # handle naming mismatch
         d, created = Department.objects.get_or_create(name=name)
         dept_map[name] = d
 
-    # 3. Load Majors (Small Dataset)
+    # R4 - bulk load
+    # Load majors_data.csv - 173 entries
     print("Loading Majors...")
     with open('majors_data.csv', mode='r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            # Map the CSV category to our Department objects
+            # map Major to Department
             cat = row['Major_category']
             target_dept = None
             
@@ -43,41 +46,75 @@ def run():
                 unemployment_rate=float(row['Unemployment_rate'])
             )
 
-    # 4. Load Students (Big Dataset)
+    # Load students_data.csv - 5000 entries
     print("Loading 5,000 Students...")
-    # Get all majors into a list to assign them randomly to students 
-    # (since the student CSV doesn't specify a specific major, only a dept)
+    
+    # Get all majors into a list to assign randomly to students 
     all_majors = list(Major.objects.all())
-    import random
+    student_instances = [] # List to hold objects for bulk creation
 
     with open('students_data.csv', mode='r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
-        count = 0
-        for row in reader:
-            # Pick a random major that belongs to the student's department
-            student_dept_name = row['Department']
-            # Simple fix for naming discrepancies
-            if student_dept_name == "Computer Science": dept_key = "Computer Science"
-            else: dept_key = student_dept_name
+        for count, row in enumerate(reader):
+            try:
+                dept_key = row['Department']
+                available_majors = [m for m in all_majors if m.department.name == dept_key]
+                assigned_major = random.choice(available_majors) if available_majors else all_majors[0]
 
-            # Filter majors to find one in the right department
-            available_majors = [m for m in all_majors if m.department.name == dept_key]
-            assigned_major = random.choice(available_majors) if available_majors else all_majors[0]
+                # Create the object in memory, NOT in the database yet
+                student = Student(
+                    student_id=row.get('Student_ID', f"STU{count}"),
+                    first_name=row.get('First_Name', 'First'),
+                    last_name=row.get('Last_Name', 'Last'),
+                    major=assigned_major,
+                    attendance=float(row.get('Attendance', 0)),
+                    project_score=float(row.get('Projects_Score', 0)),
+                    final_grade=row.get('Grade', 'F')
+                )
+                student_instances.append(student)
+            except Exception as e:
+                print(f"Skipping row {count} due to error: {e}")
 
-            Student.objects.create(
-                student_id=row.get('Student_ID', f"STU{count}"),
-                first_name=row.get('First_Name', 'First'),
-                last_name=row.get('Last_Name', 'Last'),
-                major=assigned_major,
-                attendance=float(row.get('Attendance', 0)),
-                project_score=float(row.get('Projects_Score', 0)),
-                final_grade=row.get('Grade', 'F')
-            )
-            count += 1
-            if count % 1000 == 0:
-                print(f"Loaded {count} students...")
+    # one single database hit for all students
+    print("Executing bulk create...")
+    Student.objects.bulk_create(student_instances)
 
-    print(f"Success! Total rows: {Department.objects.count() + Major.objects.count() + Student.objects.count()}")
-
+    print(f"Success! Total objects in DB: {Student.objects.count()}")
 if __name__ == '__main__':
-    run()
+    run()   
+
+
+#     import random
+
+#     with open('students_data.csv', mode='r', encoding='utf-8') as file:
+#         reader = csv.DictReader(file)
+#         count = 0
+#         for row in reader:
+#             # Pick a random major that belongs to the student's department
+#             student_dept_name = row['Department']
+            
+#             # Simple fix for naming discrepancies
+#             if student_dept_name == "Computer Science": dept_key = "Computer Science"
+#             else: dept_key = student_dept_name
+
+#             # Filter majors to find the right department
+#             available_majors = [m for m in all_majors if m.department.name == dept_key]
+#             assigned_major = random.choice(available_majors) if available_majors else all_majors[0]
+
+#             Student.objects.create(
+#                 student_id=row.get('Student_ID', f"STU{count}"),
+#                 first_name=row.get('First_Name', 'First'),
+#                 last_name=row.get('Last_Name', 'Last'),
+#                 major=assigned_major,
+#                 attendance=float(row.get('Attendance', 0)),
+#                 project_score=float(row.get('Projects_Score', 0)),
+#                 final_grade=row.get('Grade', 'F')
+#             )
+#             count += 1
+#             if count % 1000 == 0:
+#                 print(f"Loaded {count} students...")
+
+#     print(f"Success! Total rows: {Department.objects.count() + Major.objects.count() + Student.objects.count()}")
+
+# if __name__ == '__main__':
+#     run()
